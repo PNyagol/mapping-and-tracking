@@ -5,6 +5,7 @@ import L from "leaflet";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
+import { Typography } from "@mui/material";
 
 // Custom red icon
 const redIcon = new L.Icon({
@@ -48,6 +49,8 @@ export const Mapping = ({ data = [], latitude, longitude }) => {
     satellite: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
   };
 
+  console.log("####################################DATA")
+  console.log(data)
   return (
     <div className="h-100" style={{ position: "relative" }}>
       <MapContainer
@@ -61,7 +64,7 @@ export const Mapping = ({ data = [], latitude, longitude }) => {
           url={tileLayers[mapStyle]}
         />
         <SearchControl />
-        {data.map(({ id, county, subCounty, latitude, longitude, user }) => (
+        {data.map(({ id, county, subCounty, latitude, longitude, user, imageUrl }) => (
           <Marker key={id} position={[latitude, longitude]} icon={redIcon}>
             <Popup>
               <div>
@@ -74,6 +77,15 @@ export const Mapping = ({ data = [], latitude, longitude }) => {
                 <div>
                   <b>User:</b> {user?.firstName} {user?.lastName}
                 </div>
+                <Typography variant="div">
+                  <img
+                    srcSet={`${imageUrl}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                    src={imageUrl}
+                    alt={subCounty}
+                    loading="lazy"
+                    style={{ width: '200px' }}
+                  />
+                </Typography>
               </div>
             </Popup>
           </Marker>

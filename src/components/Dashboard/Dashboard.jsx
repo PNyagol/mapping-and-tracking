@@ -7,7 +7,6 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
 import UserMenu from "../UserMenu/UserMenu";
-import { ReactRouterAppProvider } from '@toolpad/core/react-router';
 import {
   Typography,
   Stack,
@@ -17,7 +16,6 @@ import {  LocationOnOutlined } from "@mui/icons-material";
 import { AddLocationDrawer } from "../AddLocationDrawer/AddLocationDrawer";
 import { PersonOutline } from "@mui/icons-material";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Profile } from "../../pages/Profile/Profile";
 import { useSnackbar } from "notistack";
 
 const demoTheme = createTheme({

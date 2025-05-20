@@ -19,8 +19,8 @@ export const AddLocationDrawer = ({
   open,
   setOpen,
   location,
-  fetchData,
-  refetchMappings,
+  fetchData = () => {},
+  refetchMappings = () => {},
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [photo, setPhoto] = useState(null);

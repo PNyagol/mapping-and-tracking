@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import { Card, CardContent, Typography, Container } from "@mui/material";
 import {
@@ -9,39 +9,26 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { gql, useQuery } from "@apollo/client";
 
 export const Reports = () => {
-  const collection = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
 
-  const completed = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
+  const { data } = useQuery(GET_USER_REPORT);
+  const [collection, setCollection] = useState([])
+  const [completed, setCompleted] = useState([])
+  const [inProgress, setInProgress] = useState([])
+  const [scheduled, setScheduled] = useState([])
 
-  const inProgress = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
+  useEffect(() => {
+    if(data?.getUserDataReport){
+      const res = data?.getUserDataReport
+      setCollection(res?.reported || [])
+      setCompleted(res?.completed || [])
+      setInProgress(res?.inProgress || [])
+      setScheduled(res?.assigned || [])
+    }
+  }, [data])
 
-  const scheduled = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
 
   const reportData = [
     { title: "Reported Litter", data: collection },
@@ -65,7 +52,7 @@ export const Reports = () => {
                 </Typography>
                 <Typography variant="body2">
                   <Typography variant="h5">
-                    <b>10K</b>
+                    <b>Total: {map.data.reduce((acc, rep) => acc + rep.total, 0)}</b>
                   </Typography>
                   <Typography
                     style={{ color: "hsl(220, 20%, 35%)", fontSize: "12px" }}
@@ -80,7 +67,7 @@ export const Reports = () => {
                       data={map.data}
                       margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                     >
-                      <XAxis dataKey="name" />
+                      <XAxis dataKey="month" />
                       <YAxis />
                       <Tooltip
                         contentStyle={{
@@ -95,7 +82,7 @@ export const Reports = () => {
                       />
                       <Line
                         type="monotone"
-                        dataKey="value"
+                        dataKey="total"
                         stroke="rgb(82, 188, 82)"
                         strokeWidth={2}
                         dot={false}
@@ -112,3 +99,27 @@ export const Reports = () => {
     </>
   );
 };
+
+
+const GET_USER_REPORT = gql`
+  query getUserDataReport {
+    getUserDataReport {
+      reported {
+        month
+        total
+      }
+      assigned {
+        month
+        total
+      }
+      inProgress {
+        month
+        total
+      }
+      completed {
+        month
+        total
+      }
+    }
+  }
+`

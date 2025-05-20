@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from 'react-router-dom';
 import { Home } from './pages/Home/Home';
 import { Reports } from './pages/Reports/Reports';
@@ -39,7 +38,8 @@ const theme = createTheme({
 
 
 const httpLink = createHttpLink({
-  uri: "https://app.mazingiraconcept.com/graphql/",
+  uri: "http://127.0.0.1:8000/graphql/",
+  // uri: "https://app.mazingiraconcept.com/graphql/",
 });
 
 

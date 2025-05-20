@@ -6,29 +6,31 @@ import { useNavigate } from 'react-router-dom';
 
 const UserMenu = () => {
   const navigate = useNavigate()
-  const settings = [
-    {title: 'Profile', fn: () => { navigateToProfile("/profile"); handleCloseUserMenu(); }},
-    {title: 'Dashboard', fn: () => {navigateToProfile("/dashboard"); handleCloseUserMenu()}},
-    {title: 'Logout', fn: () => {handleCloseUserMenu()}}
-  ];
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [color, setColor] = useState();
   const [bgColor, setBgColor] = useState();
   const [userObj, setUserObj] = useState(null)
   const [userFirstLetter, setUserFirstLetter] = useState(null)
-  const [role, setRole] = useState("User")
   const userRole = localStorage.getItem("_userRole");
   const user = localStorage.getItem("_user")
-
+  
+  const logoutUser = () => {
+    localStorage.removeItem("_userRole");
+    localStorage.removeItem("_user")
+    
+    navigate("/authentication")
+  }
+  
+  const settings = [
+    {title: 'Profile', fn: () => { navigateToProfile("/profile"); handleCloseUserMenu(); }},
+    {title: 'Dashboard', fn: () => {navigateToProfile("/dashboard"); handleCloseUserMenu()}},
+    {title: 'Logout', fn: () => { logoutUser(); handleCloseUserMenu()}}
+  ];
   useEffect(() => {
     if(user){
       const user_obj = JSON.parse(user);
       setUserObj(user_obj)
-      console.log("************************************")
-      console.log(user)
-      console.log("************************************")
       setUserFirstLetter(user_obj?.firstName[0] || 'N')
-      setRole(userRole)
     }
   }, [user, userRole])
 

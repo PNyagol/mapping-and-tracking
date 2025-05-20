@@ -8,6 +8,21 @@ import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "rec
 export const Home = () => {
   const [latitude, setLatitude] = useState(-1.286389);
   const [longitude, setLongitude] = useState(36.817223);
+  const { data: reports } = useQuery(GET_USER_REPORT);
+  const [collection, setCollection] = useState([])
+  const [completed, setCompleted] = useState([])
+  const [inProgress, setInProgress] = useState([])
+  const [scheduled, setScheduled] = useState([])
+
+  useEffect(() => {
+    if(reports?.getUserDataReport){
+      const res = reports?.getUserDataReport
+      setCollection(res?.reported || [])
+      setCompleted(res?.completed || [])
+      setInProgress(res?.inProgress || [])
+      setScheduled(res?.assigned || [])
+    }
+  }, [reports])
 
     const getLocation = () => {
     if (!navigator.geolocation) {
@@ -56,37 +71,6 @@ export const Home = () => {
     refetch();
   }, [startDate, endDate, refetch]);
 
-  const collection = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
-
-  const completed = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
-
-  const inProgress = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
-
-  const scheduled = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 500 },
-    { name: "Apr", value: 200 },
-    { name: "May", value: 600 },
-  ];
 
   const reportData = [
     { title: "Reported Litter", data: collection },
@@ -109,8 +93,8 @@ export const Home = () => {
                         <b>{map.title}</b>
                       </Typography>
                       <Typography variant="body2">
-                          <Typography variant="h5"><b>10K</b></Typography>
-                          <Typography style={{ color : 'hsl(220, 20%, 35%)', fontSize: '12px' }}>In the last 30 days</Typography>
+                          <Typography variant="h5"><b>Total: {map.data.reduce((acc, rep) => acc + rep.total, 0)}</b></Typography>
+                          {/* <Typography style={{ color : 'hsl(220, 20%, 35%)', fontSize: '12px' }}>In the last 30 days</Typography> */}
                         </Typography>
                       <div className="graph_content">
                         <ResponsiveContainer width="100%" height={40}>
@@ -127,7 +111,7 @@ export const Home = () => {
                               </linearGradient>
                             </defs>
 
-                            <XAxis dataKey="name" hide />
+                            <XAxis dataKey="month" hide />
                             <YAxis hide domain={['auto', 'auto']} />
                             <Tooltip
                               contentStyle={{
@@ -139,7 +123,7 @@ export const Home = () => {
                             />
                             <Area
                               type="linear"
-                              dataKey="value"
+                              dataKey="total"
                               stroke="rgb(82, 188, 82)"
                               strokeWidth={2}
                               fill="url(#colorGreen)"
@@ -199,3 +183,27 @@ const GET_USER_ALL_GEOLOCATION = gql`
     }
   }
 `;
+
+
+const GET_USER_REPORT = gql`
+  query getUserDataReport {
+    getUserDataReport {
+      reported {
+        month
+        total
+      }
+      assigned {
+        month
+        total
+      }
+      inProgress {
+        month
+        total
+      }
+      completed {
+        month
+        total
+      }
+    }
+  }
+`
