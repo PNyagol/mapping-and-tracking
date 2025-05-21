@@ -70,7 +70,7 @@ function App() {
               <Route path="/profile" element={<Profile />}/>
               <Route path="/my_locations" element={<MyLocations />} />
               <Route path="/authentication" element={<Authentication />}/>
-              <Route path="/" exact element={<Home />} />
+              <Route path="" exact element={<Home />} />
             </Routes>
           </Router>
         </ApolloProvider>

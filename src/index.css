@@ -238,3 +238,7 @@ input.glass{
   .reports_main_card{
     min-height: 400px !important;
   }
+
+  .toolpad-demo-app-if1821-MuiPaper-root-MuiTableContainer-root{
+    box-shadow: unset !important;
+  }

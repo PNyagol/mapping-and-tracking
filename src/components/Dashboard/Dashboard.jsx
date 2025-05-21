@@ -67,69 +67,12 @@ const Dashboard = ({ window, children, fetchData, refetchMappings }) => {
       navigate("/authentication");
     }
   }, [navigate, currentUser, userRole, enqueueSnackbar, navlocation]);
-const NAVIGATION = [
-  {
-    key: 1,
-    kind: "header",
-    title: "Mapping Section",
-  },
-  {
-    key: 2,
-    path: "/dashboard",
-    title: "Dashboard",
-    icon: <DashboardIcon />,
-    onClick: () => {
-      console.log("******************************CLICKED");
-      navigate('/dashboard');
-    },
-    selected: navlocation.pathname === '/dashboard',
-  },
-  {
-    key: 3,
-    path: "/my_locations",
-    title: "My Locations",
-    icon: <LocationOnOutlined />,
-    onClick: () => {
-      navigate('/my_locations');
-    },
-    selected: navlocation.pathname === '/my_locations',
-  },
-  {
-    key: 4,
-    kind: "divider",
-  },
-  {
-    key: 5,
-    kind: "header",
-    title: "Analytics",
-  },
-  {
-    key: 6,
-    path: "/reports",
-    title: "Reports",
-    icon: <BarChartIcon />,
-    onClick: () => {
-      navigate('/reports');
-    },
-    selected: navlocation.pathname === '/reports',
-  },
-  {
-    key: 7,
-    path: "/profile",
-    // component: Profile,
-    title: "My Profile",
-    icon: <PersonOutline />,
-    onClick: () => {
-      navigate('/profile');
-    },
-    selected: navlocation.pathname === '/profile',
-  },
-];
-  const router = useDemoRouter("/dashboard");
+
   // const navItems = useToolpadNavigation(NAVIGATION)
   const demoWindow = window !== undefined ? window() : undefined;
   const [open, setOpen] = useState(false);
   const [location, setLocation] = useState(null);
+  // const router = useDemoRouter('/dashboard');
 
 
   const getLocation = () => {
@@ -152,6 +95,7 @@ const NAVIGATION = [
     getLocation();
   }, []);
 
+  
   function CustomAppTitle() {
     return (
       <Stack direction="row" alignItems="center" spacing={2}>
@@ -168,11 +112,57 @@ const NAVIGATION = [
     return <UserMenu />;
   }
 
+const NAVIGATION = [
+  {
+    key: 1,
+    kind: "header",
+    title: "Mapping Section",
+  },
+  {
+    key: 2,
+    title: "Dashboard",
+    // path: "/dashboard",
+    segment: "dashboard",
+    icon: <DashboardIcon />,
+  },
+  {
+    key: 3,
+    title: "My Locations",
+    segment: "my_locations",
+    // path: "/my_locations",
+    icon: <LocationOnOutlined />,
+  },
+  {
+    key: 4,
+    kind: "divider",
+  },
+  {
+    key: 5,
+    kind: "header",
+    title: "Analytics",
+  },
+  {
+    key: 6,
+    title: "Reports",
+    segment: "reports",
+    // path: "/reports",
+    icon: <BarChartIcon />,
+  },
+  {
+    key: 7,
+    title: "My Profile",
+    segment: "profile",
+    // path: "/profile",
+    icon: <PersonOutline />,
+  },
+];
+
+
   return (
     <DemoProvider window={demoWindow}>
       <AppProvider
         navigation={NAVIGATION}
-        router={router}
+        // router={router}
         theme={demoTheme}
         window={demoWindow}
       >

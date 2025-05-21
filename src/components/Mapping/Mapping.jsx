@@ -49,8 +49,6 @@ export const Mapping = ({ data = [], latitude, longitude }) => {
     satellite: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
   };
 
-  console.log("####################################DATA")
-  console.log(data)
   return (
     <div className="h-100" style={{ position: "relative" }}>
       <MapContainer
