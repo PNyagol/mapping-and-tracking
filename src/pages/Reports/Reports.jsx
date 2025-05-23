@@ -19,6 +19,10 @@ export const Reports = () => {
   const [inProgress, setInProgress] = useState([])
   const [scheduled, setScheduled] = useState([])
 
+    useEffect(() => {
+      document.title = "My Reports - Mazingira Concept";
+    }, []);
+
   useEffect(() => {
     if(data?.getUserDataReport){
       const res = data?.getUserDataReport

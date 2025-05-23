@@ -24,6 +24,10 @@ export const Profile = () => {
   } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+      document.title = "My Profile - Mazingira Concept";
+    }, []);
+
   const onSubmit = async (values) => {
     const { oldPasswords, passwords, passwordAgain } = values;
 

@@ -15,6 +15,10 @@ export const Home = () => {
   const [scheduled, setScheduled] = useState([])
 
   useEffect(() => {
+    document.title = "Dashboard - Mazingira Concept";
+  }, []);
+
+  useEffect(() => {
     if(reports?.getUserDataReport){
       const res = reports?.getUserDataReport
       setCollection(res?.reported || [])

@@ -8,6 +8,10 @@ export const Authentication = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1100);
 
     useEffect(() => {
+      document.title = "Authentication - Mazingira Concept";
+    }, []);
+
+    useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1100);
     };

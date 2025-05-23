@@ -1,193 +1,254 @@
-import { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { createTheme } from "@mui/material/styles";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import { AppProvider } from "@toolpad/core/AppProvider";
-import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
-import UserMenu from "../UserMenu/UserMenu";
+// Dashboard.jsx
 import {
+  AppBar,
+  Toolbar,
   Typography,
-  Stack,
+  Box,
+  CssBaseline,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
   Button,
+  Stack,
 } from "@mui/material";
-import {  LocationOnOutlined } from "@mui/icons-material";
+import {
+  Dashboard as DashboardIcon,
+  LocationOnOutlined,
+  BarChart as BarChartIcon,
+  PersonOutline,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+
+import PropTypes from "prop-types";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import UserMenu from "../UserMenu/UserMenu";
 import { AddLocationDrawer } from "../AddLocationDrawer/AddLocationDrawer";
-import { PersonOutline } from "@mui/icons-material";
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useSnackbar } from "notistack";
+import { MenuOpenRounded } from "@mui/icons-material";
 
-const demoTheme = createTheme({
-  cssVariables: {
-    colorSchemeSelector: "data-toolpad-color-scheme",
+const navItems = [
+  {
+    title: "Mapping",
+    children: [
+      { title: "Dashboard", path: "/dashboard", icon: <DashboardIcon /> },
+      {
+        title: "My Locations",
+        path: "/my_locations",
+        icon: <LocationOnOutlined />,
+      },
+    ],
   },
-  colorSchemes: { light: true, dark: true },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
-    },
+  {
+    title: "Reports",
+    children: [{ title: "Reports", path: "/reports", icon: <BarChartIcon /> }],
   },
-});
+  {
+    title: "My Profile",
+    children: [
+      { title: "My Profile", path: "/profile", icon: <PersonOutline /> },
+    ],
+  },
+];
 
-const Dashboard = ({ window, children, fetchData, refetchMappings }) => {
-  const { enqueueSnackbar } = useSnackbar()
+export default function Dashboard({ window, children }) {
   const navigate = useNavigate();
-  const navlocation = useLocation();
+  const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
   const currentUser = localStorage.getItem("_authToken");
   const userRole = localStorage.getItem("_userRole");
 
-  useEffect(() => {
-    if(!currentUser || !userRole){
-      navigate("/authentication");
-    }
-  }, [currentUser, userRole, navigate])
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [resizeMenu, setResizeMenu] = useState(false)
+  const [drawerWidth, setDrawerWidth] = useState(300);
 
-    useEffect(() => {
-    if (!currentUser) {
+  useEffect(() => {
+    setDrawerWidth(resizeMenu ? 100 : 300)
+  }, [resizeMenu])
+  // Access control
+  useEffect(() => {
+    if (!currentUser || !userRole) {
       enqueueSnackbar("You are not logged in", { variant: "error" });
       navigate("/authentication");
     }
+  }, [currentUser, userRole, enqueueSnackbar, navigate]);
 
+  useEffect(() => {
     const allowedRoles = ["User", "Epr", "B2b", "B2c", "Government"];
-
     const allowedURLs = ["/", "", "/auth/reset-password"];
     if (
       !allowedRoles.includes(userRole) &&
       currentUser &&
-      !allowedURLs.includes(navlocation.pathname)
+      !allowedURLs.includes(location.pathname)
     ) {
       enqueueSnackbar("You don't have permissions to access this resource.", {
         variant: "warning",
       });
       navigate("/authentication");
     }
-  }, [navigate, currentUser, userRole, enqueueSnackbar, navlocation]);
+  }, [location.pathname, userRole, currentUser, enqueueSnackbar, navigate]);
 
-  // const navItems = useToolpadNavigation(NAVIGATION)
-  const demoWindow = window !== undefined ? window() : undefined;
-  const [open, setOpen] = useState(false);
-  const [location, setLocation] = useState(null);
-  // const router = useDemoRouter('/dashboard');
-
-
-  const getLocation = () => {
-    if (!navigator.geolocation) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation({ latitude, longitude });
-      },
-      (err) => {
-        setLocation(null);
-      }
-    );
-  };
-
+  // Geolocation
   useEffect(() => {
-    getLocation();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setUserLocation({ latitude, longitude });
+        },
+        () => {
+          setUserLocation(null);
+        }
+      );
+    }
   }, []);
 
-  
-  function CustomAppTitle() {
-    return (
-      <Stack direction="row" alignItems="center" spacing={2}>
-        <Typography variant="h6">Mazingira Concept</Typography>
-        <Button variant="contained" onClick={() => { setOpen(true) }}>
-          {" "}
-          <LocationOnOutlined /> Add Location
-        </Button>
-      </Stack>
-    );
-  }
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
-  function UserAction() {
-    return <UserMenu />;
-  }
-
-const NAVIGATION = [
-  {
-    key: 1,
-    kind: "header",
-    title: "Mapping Section",
-  },
-  {
-    key: 2,
-    title: "Dashboard",
-    // path: "/dashboard",
-    segment: "dashboard",
-    icon: <DashboardIcon />,
-  },
-  {
-    key: 3,
-    title: "My Locations",
-    segment: "my_locations",
-    // path: "/my_locations",
-    icon: <LocationOnOutlined />,
-  },
-  {
-    key: 4,
-    kind: "divider",
-  },
-  {
-    key: 5,
-    kind: "header",
-    title: "Analytics",
-  },
-  {
-    key: 6,
-    title: "Reports",
-    segment: "reports",
-    // path: "/reports",
-    icon: <BarChartIcon />,
-  },
-  {
-    key: 7,
-    title: "My Profile",
-    segment: "profile",
-    // path: "/profile",
-    icon: <PersonOutline />,
-  },
-];
-
-
-  return (
-    <DemoProvider window={demoWindow}>
-      <AppProvider
-        navigation={NAVIGATION}
-        // router={router}
-        theme={demoTheme}
-        window={demoWindow}
-      >
-        <DashboardLayout
-          slots={{
-            appTitle: CustomAppTitle,
-            toolbarAccount: UserAction,
-          }}
-        >
-          {children}
-        </DashboardLayout>
-      </AppProvider>
-      <AddLocationDrawer
-        open={open}
-        setOpen={setOpen}
-        location={location}
-        fetchData={fetchData}
-        refetchMappings={refetchMappings}
-      />
-    </DemoProvider>
+  const drawer = (
+    <div>
+      <Toolbar />
+      <List style={{ padding: '16px' }}>
+        {navItems.map((item) => (
+          <Box style={{ marginBottom: "20px" }}>
+            <Typography>{item.title.toUpperCase()}</Typography>
+            <Box>
+              {item.children.map((navItem) => (
+                <ListItem
+                  button
+                  key={navItem.title}
+                  selected={location.pathname === navItem.path}
+                  onClick={() => navigate(navItem.path)}
+                  style={resizeMenu ? { display: 'block', textAlign: 'center' } : {}}
+                >
+                  <ListItemIcon>{navItem.icon}</ListItemIcon>
+                  <ListItemText primary={navItem.title} />
+                </ListItem>
+              ))}
+            </Box>
+          </Box>
+        ))}
+      </List>
+    </div>
   );
-};
+
+  const handleNavSize = () => {
+    setResizeMenu(!resizeMenu)
+    sessionStorage.setItem("_navItemSmall", !resizeMenu)
+  }
+
+  useEffect(() => {
+    const getNav = sessionStorage.getItem("_navItemSmall")
+    if(getNav){
+      setResizeMenu(getNav === "true" ? true : false)
+    }
+  }, [])
+  return (
+    <Box sx={{ display: "flex", backgroundColor: "rgb(255, 255, 255)" }}>
+      <CssBaseline />
+
+      {/* AppBar */}
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Button style={{ backgroundColor: 'inherit' }} onClick={handleNavSize} color="white"><MenuOpenRounded /></Button>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ display: { sm: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              Mazingira Concept
+            </Typography>
+            <Button style={{ backgroundColor: "#00A599", color: "#ffffff" }} onClick={() => setOpenDrawer(true)}>
+              <LocationOnOutlined /> Add Location
+            </Button>
+          </Stack>
+          <UserMenu />
+        </Toolbar>
+      </AppBar>
+
+      {/* Side Drawer */}
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          style={{ zIndex: '345435444' }}
+        >
+          {drawer}
+        </Drawer>
+
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          style={{ zIndex: '345435444' }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        className="mapping_container_page"
+        sx={{
+          flexGrow: 1,
+          // p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: 8,
+        }}
+      >
+        {/* <Outlet /> */}
+        {children}
+      </Box>
+
+      {/* Location Drawer */}
+      <AddLocationDrawer
+        open={openDrawer}
+        setOpen={setOpenDrawer}
+        location={userLocation}
+        fetchData={() => {}}
+        refetchMappings={() => {}}
+      />
+    </Box>
+  );
+}
 
 Dashboard.propTypes = {
   window: PropTypes.func,
 };
-
-export default Dashboard;

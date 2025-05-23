@@ -1,9 +1,13 @@
 body {
   margin: 0;
-  font-family: 'Roboto';
+  /* font-family: 'Roboto'; */
+  font-family: Public Sans, sans-serif !important;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: rgb(255, 255, 255);
+  /* color: rgb(99, 115, 129); */
+  color: rgb(33, 43, 54);
 }
 
 code {
@@ -242,3 +246,26 @@ input.glass{
   .toolpad-demo-app-if1821-MuiPaper-root-MuiTableContainer-root{
     box-shadow: unset !important;
   }
+  .MuiListItem-root.MuiListItem-gutters.MuiListItem-padding.css-z2qibm-MuiListItem-root{
+    border-radius: 5px !important;
+    cursor: pointer !important;
+  }
+
+  .MuiTypography-root.MuiTypography-body1.MuiListItemText-primary.css-rizt0-MuiTypography-root{
+    margin: 0px;
+    line-height: 1.57143;
+    font-size: 0.875rem;
+    font-family: Public Sans, sans-serif !important;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
+
+.mapping_container_page{
+  min-height: 100dvh !important;
+}
+.css-1lwhjos-MuiPaper-root-MuiDrawer-paper{
+  border-right: 1px dashed rgba(145, 158, 171, 0.24) !important;
+}

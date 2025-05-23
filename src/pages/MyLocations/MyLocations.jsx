@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Dashboard from '../../components/Dashboard/Dashboard'
 import {
   Table, TableBody, TableCell, TableContainer,
@@ -12,6 +12,10 @@ import moment from 'moment';
 export const MyLocations = () => {
     const today = new Date();
     const currentDate = today.toISOString().slice(0, 10).replaceAll("-", "/");
+
+    useEffect(() => {
+      document.title = "My Locations - Mazingira Concept";
+    }, []);
   
     const twoMonthsFromNowUnFromated = new Date(
       today.getFullYear(),
@@ -33,8 +37,8 @@ export const MyLocations = () => {
     <Dashboard>
       <Container maxWidth={false} disableGutters>
         <Card className='card' style={{ marginLeft: '20px', marginRight: '20px', marginTop: '50px', marginBottom: '50px' }}>
-            <TableContainer component={Paper}>
-              <Table aria-label="simple table">
+            <TableContainer component={Paper} style={{ boxShadow: 'none', margin: "50px" }}>
+              <Table aria-label="simple table" style={{ boxShadow: 'none' }}>
                 <TableHead>
                   <TableRow>
                     <TableCell>county</TableCell>
