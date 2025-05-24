@@ -30,6 +30,7 @@ input.glass{
 .leaflet-control-geosearch.leaflet-geosearch-bar form{
   border: none !important;
   width: 50% !important;
+  min-width: 250px !important;
   background-color: inherit !important;
   /* display: flex !important; */
   /* align-items: center !important; */
@@ -268,4 +269,17 @@ input.glass{
 }
 .css-1lwhjos-MuiPaper-root-MuiDrawer-paper{
   border-right: 1px dashed rgba(145, 158, 171, 0.24) !important;
+}
+.page_brand{
+  width: 100%;
+  max-height: 100px;
+}
+.page_brand img{
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: left;
+}
+.mobileMenuNavigationBar .MuiToolbar-root.MuiToolbar-gutters.MuiToolbar-regular.css-1ygil4i-MuiToolbar-root{
+  display: none !important;
 }

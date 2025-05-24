@@ -111,7 +111,10 @@ export default function Dashboard({ window, children }) {
     }
   }, []);
 
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const handleDrawerToggle = () => {
+    sessionStorage.setItem("_navItemSmall", false)
+    setMobileOpen(!mobileOpen)
+  };
 
   const drawer = (
     <div>
@@ -162,7 +165,7 @@ export default function Dashboard({ window, children }) {
       >
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Stack direction="row" spacing={2} alignItems="center">
-            <Button style={{ backgroundColor: 'inherit' }} onClick={handleNavSize} color="white"><MenuOpenRounded /></Button>
+            <Button sx={{ display: { xs: "none", sm: "none", lg: "block", xl: "block", md: "block" }}} style={{ backgroundColor: 'inherit' }} onClick={handleNavSize} color="white"><MenuOpenRounded /></Button>
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -172,7 +175,7 @@ export default function Dashboard({ window, children }) {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
+            <Typography sx={{ display: { xs: "none", sm: "none", lg: "block", xl: "block", md: "block" }}} variant="h6" noWrap component="div">
               Mazingira Concept
             </Typography>
             <Button style={{ backgroundColor: "#00A599", color: "#ffffff" }} onClick={() => setOpenDrawer(true)}>
@@ -192,6 +195,7 @@ export default function Dashboard({ window, children }) {
           container={container}
           variant="temporary"
           open={mobileOpen}
+          className="mobileMenuNavigationBar"
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
@@ -203,6 +207,9 @@ export default function Dashboard({ window, children }) {
           }}
           style={{ zIndex: '345435444' }}
         >
+          <div className="page_brand">
+            <img src="/logo.svg" alt="" />
+          </div>
           {drawer}
         </Drawer>
 

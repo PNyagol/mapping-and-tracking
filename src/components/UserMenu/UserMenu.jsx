@@ -85,7 +85,7 @@ const UserMenu = () => {
 
   return (
     <>
-      <Box sx={{ flexGrow: 0 }}>
+      <Box sx={{flexGrow: 0,  display: { xs: "none", sm: "none", lg: "block", xl: "block", md: "block" }}}>
         <Typography style={{ display: 'flex', alignItems: 'center', columnGap: '10px' }} className="user_profile_card">
           <Tooltip title="Open settings">
             <IconButton size='large' onClick={handleOpenUserMenu} sx={{ color: color, backgroundColor: bgColor, height: '40px', width: '40px', borderRadius: '50%' }}>
