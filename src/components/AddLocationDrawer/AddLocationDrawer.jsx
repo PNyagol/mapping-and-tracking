@@ -1,16 +1,30 @@
 import React, { useState, useRef, useEffect } from "react";
 import { gql, useMutation } from "@apollo/client";
 import { useSnackbar } from "notistack";
-import { DialogTitle, IconButton, DialogContent, Typography, DialogActions, Button, Dialog, Box, TextField, Grid } from "@mui/material";
-import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import { CameraAltOutlined } from '@mui/icons-material';
+import {
+  DialogTitle,
+  IconButton,
+  DialogContent,
+  Typography,
+  DialogActions,
+  Button,
+  Dialog,
+  Box,
+  TextField,
+  Grid,
+  FormControlLabel,
+  Checkbox,
+  MenuItem
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import { CameraAltOutlined } from "@mui/icons-material";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
+  "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },
-  '& .MuiDialogActions-root': {
+  "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
 }));
@@ -30,10 +44,13 @@ export const AddLocationDrawer = ({
   const [stream, setStream] = useState(null);
   const [isTakingPictures, setIsTakingPictures] = useState(false);
   const folderInputRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    latitude: location?.latitude || '',
-    longitude: location?.longitude || '',
-    description: ''
+    latitude: location?.latitude || "",
+    longitude: location?.longitude || "",
+    description: "",
+    litterType: '',
+    openWasteBurning: false
   });
 
   const handleChange = (e) => {
@@ -76,9 +93,12 @@ export const AddLocationDrawer = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true)
     const imageURL = await uploadBase64ToCloudinary(photo);
-    if(!imageURL){
-      enqueueSnackbar("Please make sure you upload an image", { variant: "error" });
+    if (!imageURL) {
+      enqueueSnackbar("Please make sure you upload an image", {
+        variant: "error",
+      });
       return false;
     }
     enqueueSnackbar("Submiting details", { variant: "info" });
@@ -107,7 +127,10 @@ export const AddLocationDrawer = ({
           locality,
           longitude
         );
+
+        setIsLoading(false)
       });
+        setIsLoading(false)
   };
 
   const saveLocationDetails = async (
@@ -143,10 +166,10 @@ export const AddLocationDrawer = ({
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     return () => {
       if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, [stream]);
@@ -155,24 +178,26 @@ export const AddLocationDrawer = ({
     setIsTakingPictures(true);
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasBackCamera = devices.some(device =>
-        device.kind === 'videoinput' && device.label.toLowerCase().includes('back')
+      const hasBackCamera = devices.some(
+        (device) =>
+          device.kind === "videoinput" &&
+          device.label.toLowerCase().includes("back")
       );
-  
+
       const constraints = {
         video: {
-          facingMode: hasBackCamera ? { exact: 'environment' } : 'user',
+          facingMode: hasBackCamera ? { exact: "environment" } : "user",
         },
       };
-  
-      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia(constraints);
       videoRef.current.srcObject = mediaStream;
       setStream(mediaStream);
     } catch (err) {
       console.error("Error accessing camera:", err);
     }
   };
-  
 
   const takePicture = () => {
     const video = videoRef.current;
@@ -181,17 +206,18 @@ export const AddLocationDrawer = ({
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const imageDataUrl = canvas.toDataURL('image/png');
+    const imageDataUrl = canvas.toDataURL("image/png");
     setPhoto(imageDataUrl);
     setIsTakingPictures(false);
   };
 
-  const handlePickFolder = () => {
-    folderInputRef.current.click();
-  };
+  const litterTypeOptions = ["Plastic", "Glass", "Mixed Waste"];
+
+  // TODO
+  // add checkbox for prone to open waste burning.
 
   const onFilesPicked = (event) => {
     const files = event.target.files;
@@ -199,26 +225,26 @@ export const AddLocationDrawer = ({
       console.log(file.webkitRelativePath || file.name);
     }
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-    
+
       reader.onload = (e) => {
         const dataUrl = e.target.result;
         setPhoto(dataUrl);
       };
 
-  
       reader.readAsDataURL(file);
     }
   };
 
   const handleClose = () => {
-    setOpen(false)
-    setIsTakingPictures(false)
-    setPhoto(null)
-  }
-  return <>
-  <BootstrapDialog
+    setOpen(false);
+    setIsTakingPictures(false);
+    setPhoto(null);
+  };
+  return (
+    <>
+      <BootstrapDialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
@@ -231,7 +257,7 @@ export const AddLocationDrawer = ({
           aria-label="close"
           onClick={handleClose}
           sx={(theme) => ({
-            position: 'absolute',
+            position: "absolute",
             right: 8,
             top: 8,
             color: theme.palette.grey[500],
@@ -240,124 +266,176 @@ export const AddLocationDrawer = ({
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
-      {/* Location warning */}
-      {(!location?.latitude || !location?.longitude) && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          If your latitude and longitude is not pre-filled, please enable location access and reload the page.
-        </Typography>
-      )}
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 2 }}
+          >
+            {/* Location warning */}
+            {(!location?.latitude || !location?.longitude) && (
+              <Typography color="error" sx={{ mb: 2 }}>
+                If your latitude and longitude is not pre-filled, please enable
+                location access and reload the page.
+              </Typography>
+            )}
 
-      {/* Latitude & Longitude */}
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            required
-            label="Latitude"
-            name="latitude"
-            value={location?.latitude}
-            onChange={handleChange}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            required
-            label="Longitude"
-            name="longitude"
-            value={location?.longitude}
-            onChange={handleChange}
-          />
-        </Grid>
-      </Grid>
+            {/* Latitude & Longitude */}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  disabled={true}
+                  label="Latitude"
+                  name="latitude"
+                  value={location?.latitude}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  disabled={true}
+                  label="Longitude"
+                  name="longitude"
+                  value={location?.longitude}
+                  onChange={handleChange}
+                />
+              </Grid>
+            </Grid>
 
-      {/* Image Upload Section */}
-      <Box mt={3}>
-        <Typography variant="subtitle1" gutterBottom>
-          Take/Upload a Picture
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Button fullWidth variant="contained" onClick={startCamera}>
-              Take a picture
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Button fullWidth variant="outlined" onClick={handlePickFolder}>
-              Upload a picture
-            </Button>
-          </Grid>
-        </Grid>
+            {/* Litter Type Checkboxes */}
+<Box mt={3}>
+  <TextField
+    select
+    fullWidth
+    label="Litter Type"
+    name="litterType"
+    value={formData.litterType || ""}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        litterType: e.target.value,
+      })
+    }
+  >
+    {litterTypeOptions.map((option) => (
+      <MenuItem key={option} value={option}>
+        {option}
+      </MenuItem>
+    ))}
+  </TextField>
+</Box>
 
-        <input
-          type="file"
-          name="image_url"
-          ref={folderInputRef}
-          onChange={onFilesPicked}
-          style={{ display: 'none' }}
-        />
-
-        <Box mt={2} className="image_file_design">
-          {isTakingPictures && (
-            <>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                style={{ width: '100%', maxWidth: '100%' }}
+            {/* Open Waste Burning Checkbox */}
+            <Box mt={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.openWasteBurning || false}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        openWasteBurning: e.target.checked,
+                      })
+                    }
+                    name="openWasteBurning"
+                  />
+                }
+                label="Area is prone to open waste burning"
               />
-              <IconButton
-                onClick={takePicture}
-                className="take_picture_positioned_button"
-                sx={{
-                  position: 'absolute',
-                  bottom: 16,
-                  right: 16,
-                  backgroundColor: 'white',
-                }}
-              >
-                <CameraAltOutlined />
-              </IconButton>
-              <canvas ref={canvasRef} style={{ display: 'none' }} />
-            </>
-          )}
-          {!isTakingPictures && photo && (
-            <div className="taken_picture_card">
-              <div className="close_card_button">
-                <IconButton onClick={() => { setPhoto(null); setIsTakingPictures(false) }}><CloseIcon /></IconButton>
-              </div>
-              <img
-                src={photo}
-                alt="Captured"
-                style={{ marginTop: 10, maxWidth: '100%' }}
+            </Box>
+
+            {/* Image Upload Section */}
+            <Box mt={3}>
+              <Typography variant="subtitle1" gutterBottom>
+                Take/Upload a Picture
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Button fullWidth variant="contained" onClick={startCamera}>
+                    Take a picture
+                  </Button>
+                </Grid>
+              </Grid>
+
+              <input
+                type="file"
+                name="image_url"
+                ref={folderInputRef}
+                onChange={onFilesPicked}
+                style={{ display: "none" }}
               />
-            </div>
-          )}
-        </Box>
-      </Box>
 
-      {/* Description */}
-      <Box mt={3}>
-        <TextField
-          fullWidth
-          multiline
-          minRows={3}
-          label="Description"
-          name="description"
-          placeholder="Write your message here"
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </Box>
+              <Box mt={2} className="image_file_design">
+                {isTakingPictures && (
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      style={{ width: "100%", maxWidth: "100%" }}
+                    />
+                    <IconButton
+                      onClick={takePicture}
+                      className="take_picture_positioned_button"
+                      sx={{
+                        position: "absolute",
+                        bottom: 16,
+                        right: 16,
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <CameraAltOutlined />
+                    </IconButton>
+                    <canvas ref={canvasRef} style={{ display: "none" }} />
+                  </>
+                )}
+                {!isTakingPictures && photo && (
+                  <div className="taken_picture_card">
+                    <div className="close_card_button">
+                      <IconButton
+                        onClick={() => {
+                          setPhoto(null);
+                          setIsTakingPictures(false);
+                        }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </div>
+                    <img
+                      src={photo}
+                      alt="Captured"
+                      style={{ marginTop: 10, maxWidth: "100%" }}
+                    />
+                  </div>
+                )}
+              </Box>
+            </Box>
 
-      {/* Action Buttons */}
-      <Box mt={3} display="flex" gap={2}>
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
-      </Box>
-    </Box>
+            {/* Description */}
+            <Box mt={3}>
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                label="Description"
+                name="description"
+                placeholder="Write your message here"
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </Box>
+
+            {/* Action Buttons */}
+            <Box mt={3} display="flex" gap={2}>
+              <Button loading={isLoading} disabled={isLoading} type="submit" variant="contained" color="primary">
+                Submit
+              </Button>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
@@ -365,7 +443,8 @@ export const AddLocationDrawer = ({
           </Button>
         </DialogActions>
       </BootstrapDialog>
-  </>;
+    </>
+  );
 };
 
 const CREATE_GEO_LOCATION = gql`
@@ -394,4 +473,3 @@ const CREATE_GEO_LOCATION = gql`
     }
   }
 `;
-
