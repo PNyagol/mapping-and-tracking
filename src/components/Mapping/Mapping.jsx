@@ -26,7 +26,7 @@ const redIcon = new L.Icon({
   className: 'red-marker',
 });
 
-const SearchControl = ({ onSearch }) => {
+const SearchControl = ({ onSearch, setCenterLocation }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -46,6 +46,7 @@ const SearchControl = ({ onSearch }) => {
     map.on('geosearch/showlocation', (result) => {
       const placeName = result?.location?.raw.name || result?.location?.label;
       const latlng = [result.location.y, result.location.x];
+      setCenterLocation({lat: latlng[0], lng: latlng[1]})
       onSearch(result?.location?.raw);
     });
 
@@ -58,6 +59,8 @@ const SearchControl = ({ onSearch }) => {
 export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, seeAllLocations }) => {
   const [boundaryData, setBoundaryData] = useState(null);
   const mapRef = useRef();
+
+  const [centerLocation, setCenterLocation] = useState({ lat: latitude, lng: longitude })
 
   const handleSearch = async (placeData) => {
     const { osm_type, osm_id, lat, lon, display_name } = placeData;
@@ -138,7 +141,7 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
         </FormGroup>
       </div>
       <MapContainer
-        center={[latitude, longitude]}
+        center={[centerLocation?.lat, centerLocation.lng]}
         zoom={14}
         style={{ height: '100vh' }}
         scrollWheelZoom={true}
@@ -148,7 +151,7 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
         }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <SearchControl onSearch={handleSearch} />
+        <SearchControl onSearch={handleSearch} setCenterLocation={setCenterLocation}/>
 
         {boundaryData && (
           <GeoJSON
