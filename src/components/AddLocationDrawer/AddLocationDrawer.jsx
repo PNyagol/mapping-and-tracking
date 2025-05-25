@@ -14,7 +14,7 @@ import {
   Grid,
   FormControlLabel,
   Checkbox,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -44,13 +44,13 @@ export const AddLocationDrawer = ({
   const [stream, setStream] = useState(null);
   const [isTakingPictures, setIsTakingPictures] = useState(false);
   const folderInputRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     latitude: location?.latitude || "",
     longitude: location?.longitude || "",
     description: "",
-    litterType: '',
-    openWasteBurning: false
+    wasteType: "",
+    wbProneArea: false,
   });
 
   const handleChange = (e) => {
@@ -91,16 +91,31 @@ export const AddLocationDrawer = ({
     }
   }
 
+  function base64ToFile(base64String, filename) {
+    const arr = base64String.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  }
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true)
-    const imageURL = await uploadBase64ToCloudinary(photo);
-    if (!imageURL) {
-      enqueueSnackbar("Please make sure you upload an image", {
-        variant: "error",
-      });
-      return false;
-    }
+    setIsLoading(true);
+    // const imageURL = await uploadBase64ToCloudinary(photo);
+    // if (!imageURL) {
+    //   enqueueSnackbar("Please make sure you upload an image", {
+    //     variant: "error",
+    //   });
+    //   return false;
+    // }
     enqueueSnackbar("Submiting details", { variant: "info" });
     fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${location?.latitude}&lon=${location?.longitude}&format=json`
@@ -115,8 +130,12 @@ export const AddLocationDrawer = ({
         var latitude = location?.latitude;
         var longitude = location?.longitude;
         var description = formData.description;
-        var imageUrl = imageURL;
+        var imageUrl = photo;
+        // var imageUrl = imageURL;
+        var wasteType = formData.wasteType
+        var wbProneArea = formData.wbProneArea
 
+        // return false
         await saveLocationDetails(
           country,
           county,
@@ -125,12 +144,14 @@ export const AddLocationDrawer = ({
           imageUrl,
           latitude,
           locality,
-          longitude
+          longitude,
+          wasteType,
+          wbProneArea,
         );
 
-        setIsLoading(false)
+        setIsLoading(false);
       });
-        setIsLoading(false)
+    setIsLoading(false);
   };
 
   const saveLocationDetails = async (
@@ -141,7 +162,9 @@ export const AddLocationDrawer = ({
     imageurl,
     latitude,
     locality,
-    longitude
+    longitude,
+    wasteType,
+    wbProneArea
   ) => {
     const { data } = await createGeoLocation({
       variables: {
@@ -153,6 +176,8 @@ export const AddLocationDrawer = ({
         latitude,
         locality,
         longitude,
+        wasteType,
+        wbProneArea
       },
     });
     const { success, message } = data.createGeoLocation;
@@ -307,41 +332,41 @@ export const AddLocationDrawer = ({
             </Grid>
 
             {/* Litter Type Checkboxes */}
-<Box mt={3}>
-  <TextField
-    select
-    fullWidth
-    label="Litter Type"
-    name="litterType"
-    value={formData.litterType || ""}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        litterType: e.target.value,
-      })
-    }
-  >
-    {litterTypeOptions.map((option) => (
-      <MenuItem key={option} value={option}>
-        {option}
-      </MenuItem>
-    ))}
-  </TextField>
-</Box>
+            <Box mt={3}>
+              <TextField
+                select
+                fullWidth
+                label="Litter Type"
+                name="wasteType"
+                value={formData.wasteType || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    wasteType: e.target.value,
+                  })
+                }
+              >
+                {litterTypeOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
 
             {/* Open Waste Burning Checkbox */}
             <Box mt={2}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formData.openWasteBurning || false}
+                    checked={formData.wbProneArea || false}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        openWasteBurning: e.target.checked,
+                        wbProneArea: e.target.checked,
                       })
                     }
-                    name="openWasteBurning"
+                    name="wbProneArea"
                   />
                 }
                 label="Area is prone to open waste burning"
@@ -431,7 +456,13 @@ export const AddLocationDrawer = ({
 
             {/* Action Buttons */}
             <Box mt={3} display="flex" gap={2}>
-              <Button loading={isLoading} disabled={isLoading} type="submit" variant="contained" color="primary">
+              <Button
+                loading={isLoading}
+                disabled={isLoading}
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
                 Submit
               </Button>
             </Box>
@@ -457,6 +488,8 @@ const CREATE_GEO_LOCATION = gql`
     $latitude: Float!
     $locality: String!
     $longitude: Float!
+    $wasteType: String
+    $wbProneArea: Boolean!
   ) {
     createGeoLocation(
       country: $country
@@ -467,6 +500,8 @@ const CREATE_GEO_LOCATION = gql`
       latitude: $latitude
       locality: $locality
       longitude: $longitude
+      wasteType: $wasteType
+      wbProneArea: $wbProneArea
     ) {
       success
       message

@@ -18,6 +18,8 @@ import { setContext } from "@apollo/client/link/context";
 import { Authentication } from './pages/Authentication/Authentication';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
+// import { createUploadLink } from 'apollo-upload-client';
+
 
 const theme = createTheme({
   palette: {
@@ -38,8 +40,8 @@ const theme = createTheme({
 
 
 const httpLink = createHttpLink({
-  // uri: "http://127.0.0.1:8000/graphql/",
-  uri: "https://app.mazingiraconcept.com/graphql/",
+  uri: "http://127.0.0.1:8000/graphql/",
+  // uri: "https://app.mazingiraconcept.com/graphql/",
 });
 
 
