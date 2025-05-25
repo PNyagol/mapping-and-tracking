@@ -8,11 +8,11 @@ import {
   IconButton,
 } from "@mui/material";
 import { FacebookOutlined, Google } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
 import { useSnackbar } from "notistack";
 
-export const Signup = () => {
+export const Signup = ({ handlePageChange, handleFacebookLogin, handleGoogleLogin }) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
@@ -103,7 +103,7 @@ export const Signup = () => {
         variant: "success",
       });
 
-      navigate(`/auth/account-activation/${email}`);
+      handlePageChange(0)
     } catch (err) {
       console.error("Error creating user:", err);
       enqueueSnackbar("Error creating user", { variant: "error" });
@@ -134,7 +134,7 @@ export const Signup = () => {
           Fill the form to create an account or use Google or Facebook
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={2} justifyContent={'space-between'}>
           <Grid item xs={12} sm={6}>
             <TextField
               label="First Name"
@@ -218,6 +218,21 @@ export const Signup = () => {
           required
         />
 
+        <Box
+          sx={{
+            marginTop: "10px",
+            marginBottom: "10px",
+          }}
+        >
+          <Link
+            onClick={() => {
+              handlePageChange(0);
+            }}
+          >
+            Have account already? Login
+          </Link>
+        </Box>
+
         <Button
           variant="contained"
           size="large"
@@ -234,10 +249,10 @@ export const Signup = () => {
       </div>
 
       <div className="button_containers">
-        <IconButton className="auth_call_to_action_buttons">
+        <IconButton className="auth_call_to_action_buttons" onClick={handleGoogleLogin}>
           <Google />
         </IconButton>
-        <IconButton className="auth_call_to_action_buttons">
+        <IconButton className="auth_call_to_action_buttons" onClick={handleFacebookLogin}>
           <FacebookOutlined />
         </IconButton>
       </div>
