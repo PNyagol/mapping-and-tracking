@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import { Mapping } from "../../components/Mapping/Mapping";
 import { gql, useQuery } from "@apollo/client";
-import { Grid, Card, CardContent, Typography } from "@mui/material";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+// import { Grid, Card, CardContent, Typography } from "@mui/material";
+// import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 
 export const Home = () => {
   const [latitude, setLatitude] = useState(-1.286389);
@@ -13,6 +13,8 @@ export const Home = () => {
   const [completed, setCompleted] = useState([])
   const [inProgress, setInProgress] = useState([])
   const [scheduled, setScheduled] = useState([])
+  const [seeAllLocations, setSeeAllLocations] = useState(false)
+  const [locationData, setLocationData] = useState([])
 
   useEffect(() => {
     document.title = "Dashboard - Mazingira Concept";
@@ -63,30 +65,37 @@ export const Home = () => {
 
   const startDate = twoMonthsFromNow;
   const endDate = currentDate;
+
   const { data, refetch } = useQuery(GET_USER_ALL_GEOLOCATION, {
     variables: { startDate, endDate },
   });
+
+  const { data: dataAll, refetch: refetchAll } = useQuery(GET_ALL_GEOLOCATION, {
+    variables: { startDate, endDate },
+  });
+
+  useEffect(() => {
+    if(seeAllLocations){
+      setLocationData(dataAll?.allGeoLocations || [])
+    }else{
+      setLocationData(data?.allUserLocations || [])
+    }
+  }, [data, dataAll, seeAllLocations])
+
+  const refetchAllDetails = () => {
+    refetchAll()
+    refetch()
+  }
 
   useEffect(() => {
     document.title = "Mazingira Concept | Dashboard";
   }, []);
 
-  useEffect(() => {
-    refetch();
-  }, [startDate, endDate, refetch]);
-
-
-  const reportData = [
-    { title: "Reported Litter", data: collection },
-    { title: "Scheduled for clean up", data: scheduled },
-    { title: "In Progress", data: inProgress },
-    { title: "Completed cleanups", data: completed },
-  ];
   return (
     <>
-      <Dashboard fetchData={refetch} refetchMappings={refetch}>
+      <Dashboard fetchData={refetchAllDetails} refetchMappings={refetchAllDetails}>
         <div className="content" style={{ position: "relative" }}>
-          <Mapping data={data?.allUserLocations || []} latitude={latitude} longitude={longitude}/>
+          <Mapping data={locationData} latitude={latitude} longitude={longitude} setSeeAllLocations={setSeeAllLocations} seeAllLocations={seeAllLocations}/>
         </div>
       </Dashboard>
     </>
@@ -96,6 +105,44 @@ export const Home = () => {
 const GET_USER_ALL_GEOLOCATION = gql`
   query allUserLocations($startDate: String, $endDate: String) {
     allUserLocations(startDate: $startDate, endDate: $endDate) {
+      id
+      user {
+        firstName
+        lastName
+      }
+      county
+      country
+      subCounty
+      ward
+      latitude
+      longitude
+      imageUrl
+      description
+      isAssigned
+      isCollected
+      dateAdded
+      projectSet {
+        id
+        projectName {
+          county
+          subCounty
+          ward
+        }
+        projectTimelineFrom
+      }
+      assignwasteSet {
+        id
+        user {
+          DriverName
+        }
+      }
+    }
+  }
+`;
+
+const GET_ALL_GEOLOCATION = gql`
+  query allGeoLocations($startDate: String, $endDate: String) {
+    allGeoLocations(startDate: $startDate, endDate: $endDate) {
       id
       user {
         firstName

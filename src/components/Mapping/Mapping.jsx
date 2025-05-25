@@ -13,6 +13,7 @@ import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import { Typography } from '@mui/material';
 import osmtogeojson from 'osmtogeojson';
+import { FormGroup, FormControlLabel, Checkbox } from '@mui/material'
 
 // Custom red icon
 const redIcon = new L.Icon({
@@ -54,7 +55,7 @@ const SearchControl = ({ onSearch }) => {
   return null;
 };
 
-export const Mapping = ({ data = [], latitude, longitude }) => {
+export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, seeAllLocations }) => {
   const [boundaryData, setBoundaryData] = useState(null);
   const mapRef = useRef();
 
@@ -131,6 +132,11 @@ export const Mapping = ({ data = [], latitude, longitude }) => {
 
   return (
     <div className="h-100" style={{ position: 'relative' }}>
+      <div className="see_all_locations_toggle">
+        <FormGroup>
+          <FormControlLabel control={<Checkbox onClick={() => { setSeeAllLocations(!seeAllLocations) }}/>} label="See All" />
+        </FormGroup>
+      </div>
       <MapContainer
         center={[latitude, longitude]}
         zoom={14}

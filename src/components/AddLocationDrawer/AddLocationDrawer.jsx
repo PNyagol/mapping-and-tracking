@@ -61,51 +61,6 @@ export const AddLocationDrawer = ({
     }));
   };
 
-  async function uploadBase64ToCloudinary(base64Image) {
-    const cloudName = "dwvjgc2l0";
-    const uploadPreset = "mazingira_concept_trial";
-
-    const formData = new FormData();
-    formData.append("file", base64Image);
-    formData.append("upload_preset", uploadPreset);
-
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        return data.secure_url;
-      } else {
-        throw new Error(data.error?.message || "Upload failed");
-      }
-    } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
-      return null;
-    }
-  }
-
-  function base64ToFile(base64String, filename) {
-    const arr = base64String.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new File([u8arr], filename, { type: mime });
-  }
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

@@ -24,13 +24,12 @@ import {
 } from "@mui/icons-material";
 
 import PropTypes from "prop-types";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import UserMenu from "../UserMenu/UserMenu";
 import { AddLocationDrawer } from "../AddLocationDrawer/AddLocationDrawer";
 import { useSnackbar } from "notistack";
 import { MenuOpenRounded } from "@mui/icons-material";
-import { icon } from "leaflet";
 
 const navItems = [
   {
