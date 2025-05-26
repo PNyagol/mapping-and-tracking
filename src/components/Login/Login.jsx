@@ -7,11 +7,11 @@ import {
   IconButton,
 } from "@mui/material";
 import { FacebookOutlined, Google } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
 import { useSnackbar } from "notistack";
 
-export const Login = () => {
+export const Login = ({ handlePageChange, handleFacebookLogin, handleGoogleLogin }) => {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
@@ -144,6 +144,11 @@ export const Login = () => {
           required
         />
 
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', marginBottom: '10px' }}>
+          <Link onClick={() => {handlePageChange(2)}}>Forgot password?</Link>
+          <Link onClick={() => {handlePageChange(1)}}>Don't have account?</Link>
+        </Box>
+
         <Button
           variant="contained"
           size="large"
@@ -159,10 +164,10 @@ export const Login = () => {
         <div className="or_text">OR</div>
       </div>
       <div className="button_containers">
-        <IconButton className="auth_call_to_action_buttons">
+        <IconButton className="auth_call_to_action_buttons" onClick={handleGoogleLogin}>
           <Google />
         </IconButton>
-        <IconButton className="auth_call_to_action_buttons">
+        <IconButton className="auth_call_to_action_buttons" onClick={handleFacebookLogin}>
           <FacebookOutlined />
         </IconButton>
       </div>
