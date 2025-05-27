@@ -20,10 +20,11 @@ import {
   BarChart as BarChartIcon,
   PersonOutline,
   Menu as MenuIcon,
+  LogoutOutlined,
 } from "@mui/icons-material";
 
 import PropTypes from "prop-types";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import UserMenu from "../UserMenu/UserMenu";
 import { AddLocationDrawer } from "../AddLocationDrawer/AddLocationDrawer";
@@ -50,9 +51,12 @@ const navItems = [
     title: "My Profile",
     children: [
       { title: "My Profile", path: "/profile", icon: <PersonOutline /> },
+      { title: "Logout", path: "", icon: <LogoutOutlined /> }
     ],
   },
 ];
+
+
 
 export default function Dashboard({ window, children }) {
   const navigate = useNavigate();
@@ -69,6 +73,13 @@ export default function Dashboard({ window, children }) {
   const [userLocation, setUserLocation] = useState(null);
   const [resizeMenu, setResizeMenu] = useState(false)
   const [drawerWidth, setDrawerWidth] = useState(300);
+
+  const logoutUser = () => {
+    localStorage.removeItem("_userRole");
+    localStorage.removeItem("_user")
+    
+    navigate("/authentication")
+  }
 
   useEffect(() => {
     setDrawerWidth(resizeMenu ? 100 : 300)
@@ -129,7 +140,12 @@ export default function Dashboard({ window, children }) {
                   button
                   key={navItem.title}
                   selected={location.pathname === navItem.path}
-                  onClick={() => navigate(navItem.path)}
+                  onClick={() => {
+                    if(navItem.title === "Logout"){
+                      logoutUser()
+                    }else{
+                      navigate(navItem.path)}}
+                    }
                   style={resizeMenu ? { display: 'block', textAlign: 'center' } : {}}
                 >
                   <ListItemIcon>{navItem.icon}</ListItemIcon>
