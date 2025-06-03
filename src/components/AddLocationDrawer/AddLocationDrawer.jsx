@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import { CameraAltOutlined } from "@mui/icons-material";
+import imageCompression from "browser-image-compression";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -43,7 +43,12 @@ export const AddLocationDrawer = ({
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [isTakingPictures, setIsTakingPictures] = useState(false);
-  const folderInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [imageDataUrl, setImageDataUrl] = useState(null);
+
+  const handleClick = () => {
+    fileInputRef.current.click(); // Trigger the hidden input
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     latitude: location?.latitude || "",
@@ -64,13 +69,18 @@ export const AddLocationDrawer = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // const imageURL = await uploadBase64ToCloudinary(photo);
-    // if (!imageURL) {
-    //   enqueueSnackbar("Please make sure you upload an image", {
-    //     variant: "error",
-    //   });
-    //   return false;
-    // }
+    if (!formData.wasteType) {
+      enqueueSnackbar("Please select the waste type", { variant: "error" });
+      setIsLoading(false);
+      return false;
+    }
+    if (!photo) {
+      enqueueSnackbar("Please make sure you upload an image", {
+        variant: "error",
+      });
+      setIsLoading(false);
+      return false;
+    }
     enqueueSnackbar("Submiting details", { variant: "info" });
     fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${location?.latitude}&lon=${location?.longitude}&format=json`
@@ -87,8 +97,8 @@ export const AddLocationDrawer = ({
         var description = formData.description;
         var imageUrl = photo;
         // var imageUrl = imageURL;
-        var wasteType = formData.wasteType
-        var wbProneArea = formData.wbProneArea
+        var wasteType = formData.wasteType;
+        var wbProneArea = formData.wbProneArea;
 
         // return false
         await saveLocationDetails(
@@ -101,7 +111,7 @@ export const AddLocationDrawer = ({
           locality,
           longitude,
           wasteType,
-          wbProneArea,
+          wbProneArea
         );
 
         setIsLoading(false);
@@ -132,7 +142,7 @@ export const AddLocationDrawer = ({
         locality,
         longitude,
         wasteType,
-        wbProneArea
+        wbProneArea,
       },
     });
     const { success, message } = data.createGeoLocation;
@@ -154,83 +164,73 @@ export const AddLocationDrawer = ({
     };
   }, [stream]);
 
-const startCamera = async () => {
-  setIsTakingPictures(true);
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const hasBackCamera = devices.some(
-      (device) =>
-        device.kind === "videoinput" &&
-        device.label.toLowerCase().includes("back")
-    );
+  const startCamera = async () => {
+    setIsTakingPictures(true);
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasBackCamera = devices.some(
+        (device) =>
+          device.kind === "videoinput" &&
+          device.label.toLowerCase().includes("back")
+      );
 
-    const constraints = {
-      video: {
-        facingMode: hasBackCamera ? { ideal: "environment" } : "user",
-      },
-    };
+      const constraints = {
+        video: {
+          facingMode: hasBackCamera ? { ideal: "environment" } : "user",
+        },
+      };
 
-    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-    videoRef.current.srcObject = mediaStream;
-    setStream(mediaStream);
-  } catch (err) {
-    enqueueSnackbar(
-      "Error accessing camera. Please check your camera permissions. or make sure no browser is using the cammera", { variant: 'error' }
-    );
-    console.error("Error accessing camera:", err);
-  }
-};
-
-
-useEffect(() => {
-  if (open && !photo) {
-    const timer = setTimeout(() => {
-      if (videoRef.current) {
-        startCamera();
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }
-}, [open, photo]);
-
-
-
-  const takePicture = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const context = canvas.getContext("2d");
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageDataUrl = canvas.toDataURL("image/png");
-    setPhoto(imageDataUrl);
-    setIsTakingPictures(false);
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia(constraints);
+      videoRef.current.srcObject = mediaStream;
+      setStream(mediaStream);
+    } catch (err) {
+      enqueueSnackbar(
+        "Error accessing camera. Please check your camera permissions. or make sure no browser is using the cammera",
+        { variant: "error" }
+      );
+      console.error("Error accessing camera:", err);
+    }
   };
+
+  useEffect(() => {
+    if (open && !photo) {
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          startCamera();
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [open, photo]);
 
   const litterTypeOptions = ["Plastic", "Glass", "Mixed Waste"];
 
-  // TODO
-  // add checkbox for prone to open waste burning.
+  async function compressImageToBase64(file) {
+  const options = {
+    maxSizeMB: 0.3,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+  };
 
-  const onFilesPicked = (event) => {
-    const files = event.target.files;
-    for (let file of files) {
-      console.log(file.webkitRelativePath || file.name);
-    }
-    const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
+  const compressedFile = await imageCompression(file, options);
+  const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
+  return base64;
+}
 
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        setPhoto(dataUrl);
-      };
+  const handleImageChange = async (event) => {
+    const file = await compressImageToBase64(event.target.files[0]);
+    setPhoto(file);
+    // if (file) {
+    //   const reader = new FileReader();
 
-      reader.readAsDataURL(file);
-    }
+    //   reader.onloadend = () => {
+    //     setPhoto(reader.result);
+    //     console.log("Data URL:", reader.result);
+    //   };
+
+    //   reader.readAsDataURL(file);
+    // }
   };
 
   const handleClose = () => {
@@ -346,43 +346,20 @@ useEffect(() => {
 
             {/* Image Upload Section */}
             <Box mt={3}>
-              <Typography variant="subtitle1" gutterBottom>
-                Take a Picture
-              </Typography>
-
               <input
                 type="file"
-                name="image_url"
-                ref={folderInputRef}
-                onChange={onFilesPicked}
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageChange}
+                ref={fileInputRef}
                 style={{ display: "none" }}
               />
+              <Button variant="contained" onClick={handleClick}>
+                Take a picture
+              </Button>
 
-              <Box mt={2} className="image_file_design">
-                {!photo && (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      style={{ width: "100%", maxWidth: "100%" }}
-                    />
-                    <IconButton
-                      onClick={takePicture}
-                      className="take_picture_positioned_button"
-                      sx={{
-                        position: "absolute",
-                        bottom: 16,
-                        right: 16,
-                        backgroundColor: "white",
-                      }}
-                    >
-                      <CameraAltOutlined />
-                    </IconButton>
-                    <canvas ref={canvasRef} style={{ display: "none" }} />
-                  </>
-                )}
-                {!isTakingPictures && photo && (
+              {!isTakingPictures && photo && (
+                <Box mt={2} className="image_file_design">
                   <div className="taken_picture_card">
                     <div className="close_card_button">
                       <IconButton
@@ -400,8 +377,8 @@ useEffect(() => {
                       style={{ marginTop: 10, maxWidth: "100%" }}
                     />
                   </div>
-                )}
-              </Box>
+                </Box>
+              )}
             </Box>
 
             {/* Description */}

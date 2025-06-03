@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import { Mapping } from "../../components/Mapping/Mapping";
 import { gql, useQuery } from "@apollo/client";
+import { useLocation } from "react-router-dom";
 // import { Grid, Card, CardContent, Typography } from "@mui/material";
 // import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 
@@ -90,6 +91,22 @@ export const Home = () => {
   useEffect(() => {
     document.title = "Mazingira Concept | Dashboard";
   }, []);
+
+      useEffect(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            setLatitude(latitude);
+            setLongitude(longitude)
+          },
+          () => {
+            setLatitude(-1.286389);
+            setLongitude(36.817223)
+          }
+        );
+      }
+    }, []);
 
   return (
     <>
