@@ -62,6 +62,13 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
 
   const [centerLocation, setCenterLocation] = useState({ lat: latitude, lng: longitude })
 
+  useEffect(() => {
+    if(latitude && longitude) {
+      setCenterLocation({ lat: latitude, lng: longitude });
+    } 
+  }, [latitude, longitude]);
+
+
   const handleSearch = async (placeData) => {
     const { osm_type, osm_id, lat, lon, display_name } = placeData;
 
@@ -141,8 +148,8 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
         </FormGroup>
       </div>
       <MapContainer
-        center={[centerLocation?.lat, centerLocation.lng]}
-        zoom={14}
+        center={[centerLocation?.lat, centerLocation?.lng]}
+        zoom={18}
         style={{ height: '100vh' }}
         scrollWheelZoom={true}
         zoomControl={true}

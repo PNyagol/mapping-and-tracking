@@ -289,10 +289,13 @@ input.glass{
 }
 .see_all_locations_toggle{
   position: absolute;
-  top: 20px;
+  top: 40%;
   right: 20px;
   z-index: 3454765878709809;
   background-color: #fff;
   padding: 5px;
   border-radius: 5px;
+}
+.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation24.MuiDialog-paper.MuiDialog-paperScrollPaper.MuiDialog-paperWidthSm.css-10d30g3-MuiPaper-root-MuiDialog-paper{
+  z-index: 445476587870980966 !important;
 }
