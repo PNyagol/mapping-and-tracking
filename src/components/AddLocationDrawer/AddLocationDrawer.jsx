@@ -179,6 +179,19 @@ export const AddLocationDrawer = ({
     }
   };
 
+useEffect(() => {
+  if (open && !photo) {
+    const timer = setTimeout(() => {
+      if (videoRef.current) {
+        startCamera();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }
+}, [open, photo]);
+
+
+
   const takePicture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -331,15 +344,8 @@ export const AddLocationDrawer = ({
             {/* Image Upload Section */}
             <Box mt={3}>
               <Typography variant="subtitle1" gutterBottom>
-                Take/Upload a Picture
+                Take a Picture
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Button fullWidth variant="contained" onClick={startCamera}>
-                    Take a picture
-                  </Button>
-                </Grid>
-              </Grid>
 
               <input
                 type="file"
@@ -350,7 +356,7 @@ export const AddLocationDrawer = ({
               />
 
               <Box mt={2} className="image_file_design">
-                {isTakingPictures && (
+                {!photo && (
                   <>
                     <video
                       ref={videoRef}
