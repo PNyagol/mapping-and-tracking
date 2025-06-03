@@ -110,6 +110,10 @@ input.glass{
     justify-content: center !important;
     align-items: center !important;
   }
+  .take_picture_positioned_button:hover{
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+  }
 
   form{
     box-shadow: none !important;
