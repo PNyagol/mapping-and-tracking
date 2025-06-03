@@ -154,30 +154,33 @@ export const AddLocationDrawer = ({
     };
   }, [stream]);
 
-  const startCamera = async () => {
-    setIsTakingPictures(true);
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasBackCamera = devices.some(
-        (device) =>
-          device.kind === "videoinput" &&
-          device.label.toLowerCase().includes("back")
-      );
+const startCamera = async () => {
+  setIsTakingPictures(true);
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const hasBackCamera = devices.some(
+      (device) =>
+        device.kind === "videoinput" &&
+        device.label.toLowerCase().includes("back")
+    );
 
-      const constraints = {
-        video: {
-          facingMode: hasBackCamera ? { exact: "environment" } : "user",
-        },
-      };
+    const constraints = {
+      video: {
+        facingMode: hasBackCamera ? { ideal: "environment" } : "user",
+      },
+    };
 
-      const mediaStream =
-        await navigator.mediaDevices.getUserMedia(constraints);
-      videoRef.current.srcObject = mediaStream;
-      setStream(mediaStream);
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-    }
-  };
+    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoRef.current.srcObject = mediaStream;
+    setStream(mediaStream);
+  } catch (err) {
+    enqueueSnackbar(
+      "Error accessing camera. Please check your camera permissions. or make sure no browser is using the cammera", { variant: 'error' }
+    );
+    console.error("Error accessing camera:", err);
+  }
+};
+
 
 useEffect(() => {
   if (open && !photo) {
