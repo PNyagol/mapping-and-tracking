@@ -174,6 +174,9 @@ const startCamera = async () => {
     videoRef.current.srcObject = mediaStream;
     setStream(mediaStream);
   } catch (err) {
+    enqueueSnackbar(
+      "Error accessing camera. Please check your camera permissions. or make sure no browser is using the cammera", { variant: 'error' }
+    );
     console.error("Error accessing camera:", err);
   }
 };
