@@ -245,7 +245,7 @@ export const AddLocationDrawer = ({
         aria-labelledby="customized-dialog-title"
         open={open}
         className="home_page_modal_zindex"
-        style={{ zIndex: '6767786789785365465655787868787867' }}
+        style={{ zIndex: '' }}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
           Take a picture and report waste dumping.
