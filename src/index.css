@@ -289,8 +289,8 @@ input.glass{
 }
 .see_all_locations_toggle{
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 85dvh;
+  right: 10px;
   z-index: 3454765878709809;
   background-color: #fff;
   padding: 5px;

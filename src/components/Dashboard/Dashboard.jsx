@@ -58,7 +58,7 @@ const navItems = [
 
 
 
-export default function Dashboard({ window, children }) {
+export default function Dashboard({ window, children, setIsUpdatingForm = () => {} }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
@@ -267,6 +267,7 @@ export default function Dashboard({ window, children }) {
         location={userLocation}
         fetchData={() => {}}
         refetchMappings={() => {}}
+        setIsUpdatingForm={setIsUpdatingForm}
       />
     </Box>
   );
