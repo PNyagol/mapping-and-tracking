@@ -10,28 +10,29 @@ export const Home = () => {
   const [latitude, setLatitude] = useState(-1.286389);
   const [longitude, setLongitude] = useState(36.817223);
   const { data: reports } = useQuery(GET_USER_REPORT);
-  const [collection, setCollection] = useState([])
-  const [completed, setCompleted] = useState([])
-  const [inProgress, setInProgress] = useState([])
-  const [scheduled, setScheduled] = useState([])
-  const [seeAllLocations, setSeeAllLocations] = useState(false)
-  const [locationData, setLocationData] = useState([])
+  const [collection, setCollection] = useState([]);
+  const [completed, setCompleted] = useState([]);
+  const [inProgress, setInProgress] = useState([]);
+  const [scheduled, setScheduled] = useState([]);
+  const [seeAllLocations, setSeeAllLocations] = useState(false);
+  const [locationData, setLocationData] = useState([]);
+  const [isUpdatingForm, setIsUpdatingForm] = useState(false);
 
   useEffect(() => {
     document.title = "Dashboard - Mazingira Concept";
   }, []);
 
   useEffect(() => {
-    if(reports?.getUserDataReport){
-      const res = reports?.getUserDataReport
-      setCollection(res?.reported || [])
-      setCompleted(res?.completed || [])
-      setInProgress(res?.inProgress || [])
-      setScheduled(res?.assigned || [])
+    if (reports?.getUserDataReport) {
+      const res = reports?.getUserDataReport;
+      setCollection(res?.reported || []);
+      setCompleted(res?.completed || []);
+      setInProgress(res?.inProgress || []);
+      setScheduled(res?.assigned || []);
     }
-  }, [reports])
+  }, [reports]);
 
-    const getLocation = () => {
+  const getLocation = () => {
     if (!navigator.geolocation) {
       return;
     }
@@ -43,13 +44,16 @@ export const Home = () => {
         setLongitude(longitude);
       },
       (err) => {
+
+        console.error("Geolocation error:", err);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
   };
-
-  useEffect(() => {
-    getLocation();
-  }, []);
 
   const today = new Date();
   const currentDate = today.toISOString().slice(0, 10).replaceAll("-", "/");
@@ -76,43 +80,41 @@ export const Home = () => {
   });
 
   useEffect(() => {
-    if(seeAllLocations){
-      setLocationData(dataAll?.allGeoLocations || [])
-    }else{
-      setLocationData(data?.allUserLocations || [])
+    if (seeAllLocations) {
+      setLocationData(dataAll?.allGeoLocations || []);
+    } else {
+      setLocationData(data?.allUserLocations || []);
     }
-  }, [data, dataAll, seeAllLocations])
+  }, [data, dataAll, seeAllLocations]);
 
   const refetchAllDetails = () => {
-    refetchAll()
-    refetch()
-  }
+    refetchAll();
+    refetch();
+  };
 
   useEffect(() => {
     document.title = "Mazingira Concept | Dashboard";
   }, []);
 
-      useEffect(() => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const { latitude, longitude } = pos.coords;
-            setLatitude(latitude);
-            setLongitude(longitude)
-          },
-          () => {
-            setLatitude(-1.286389);
-            setLongitude(36.817223)
-          }
-        );
-      }
-    }, []);
+  useEffect(() => {
+    getLocation();
+  }, [isUpdatingForm]);
 
   return (
     <>
-      <Dashboard fetchData={refetchAllDetails} refetchMappings={refetchAllDetails}>
+      <Dashboard
+        fetchData={refetchAllDetails}
+        refetchMappings={refetchAllDetails}
+        setIsUpdatingForm={setIsUpdatingForm}
+      >
         <div className="content" style={{ position: "relative" }}>
-          <Mapping data={locationData} latitude={latitude} longitude={longitude} setSeeAllLocations={setSeeAllLocations} seeAllLocations={seeAllLocations}/>
+          <Mapping
+            data={locationData}
+            latitude={latitude}
+            longitude={longitude}
+            setSeeAllLocations={setSeeAllLocations}
+            seeAllLocations={seeAllLocations}
+          />
         </div>
       </Dashboard>
     </>
@@ -195,7 +197,6 @@ const GET_ALL_GEOLOCATION = gql`
   }
 `;
 
-
 const GET_USER_REPORT = gql`
   query getUserDataReport {
     getUserDataReport {
@@ -217,4 +218,4 @@ const GET_USER_REPORT = gql`
       }
     }
   }
-`
+`;
