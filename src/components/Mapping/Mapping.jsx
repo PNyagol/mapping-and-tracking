@@ -62,12 +62,6 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
 
   const [centerLocation, setCenterLocation] = useState({ lat: latitude, lng: longitude })
 
-  useEffect(() => {
-    if(latitude && longitude) {
-      setCenterLocation({ lat: latitude, lng: longitude });
-    } 
-  }, [latitude, longitude]);
-
 
   const handleSearch = async (placeData) => {
     const { osm_type, osm_id, lat, lon, display_name } = placeData;
@@ -140,6 +134,25 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
     }
   };
 
+    useEffect(() => {
+    if(latitude && longitude) {
+      setCenterLocation({ lat: latitude, lng: longitude });
+    } 
+  }, [latitude, longitude]);
+
+  console.log("************************************LAT")
+  console.log(centerLocation)
+  console.log("************************************LAT")
+
+  const MapCenterUpdater = ({ center }) => {
+    const map = useMap();
+    useEffect(() => {
+      map.setView(center);
+    }, [center]);
+    return null;
+  };
+
+
   return (
     <div className="h-100" style={{ position: 'relative' }}>
       <div className="see_all_locations_toggle">
@@ -157,12 +170,13 @@ export const Mapping = ({ data = [], latitude, longitude, setSeeAllLocations, se
           mapRef.current = mapInstance;
         }}
       >
+        <MapCenterUpdater center={[centerLocation?.lat, centerLocation?.lng]} />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl onSearch={handleSearch} setCenterLocation={setCenterLocation}/>
 
         {boundaryData && (
           <GeoJSON
-            key={JSON.stringify(boundaryData)} // re-render on new data
+            key={JSON.stringify(boundaryData)}
             data={boundaryData}
             style={{ color: 'blue', weight: 2 }}
             onEachFeature={(feature, layer) => {

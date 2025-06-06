@@ -35,16 +35,15 @@ export const AddLocationDrawer = ({
   location,
   fetchData = () => {},
   refetchMappings = () => {},
+  setIsUpdatingForm = () => {},
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [photo, setPhoto] = useState(null);
   const [createGeoLocation] = useMutation(CREATE_GEO_LOCATION);
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [isTakingPictures, setIsTakingPictures] = useState(false);
   const fileInputRef = useRef(null);
-  const [imageDataUrl, setImageDataUrl] = useState(null);
 
   const handleClick = () => {
     fileInputRef.current.click(); // Trigger the hidden input
@@ -131,28 +130,49 @@ export const AddLocationDrawer = ({
     wasteType,
     wbProneArea
   ) => {
-    const { data } = await createGeoLocation({
-      variables: {
-        country,
-        county,
-        subCounty,
-        description,
-        imageurl,
-        latitude,
-        locality,
-        longitude,
-        wasteType,
-        wbProneArea,
-      },
-    });
-    const { success, message } = data.createGeoLocation;
-    if (success) {
-      enqueueSnackbar("Details saved successfully", { variant: "success" });
-      fetchData();
-      refetchMappings();
-      setOpen(false);
-    } else {
-      enqueueSnackbar(`Error:, ${message}`, { variant: "error" });
+    try {
+      const { data } = await createGeoLocation({
+        variables: {
+          country,
+          county,
+          subCounty,
+          description,
+          imageurl,
+          latitude,
+          locality,
+          longitude,
+          wasteType,
+          wbProneArea,
+        },
+      });
+
+      if (!data || !data.createGeoLocation) {
+        throw new Error("Unexpected response from server.");
+      }
+
+      const { success, message } = data.createGeoLocation;
+
+      if (success) {
+        enqueueSnackbar("Details saved successfully", { variant: "success" });
+        fetchData();
+        refetchMappings();
+        setOpen(false);
+      } else {
+        enqueueSnackbar(`Error: ${message || "Unknown error occurred"}`, {
+          variant: "error",
+        });
+      }
+    } catch (err) {
+      // Log full error for debugging
+      console.error("Failed to save location details:", err);
+
+      // Show user-friendly error
+      enqueueSnackbar(
+        `Failed to save location: ${err.message || "An unexpected error occurred."}`,
+        { variant: "error" }
+      );
+    } finally {
+      setIsUpdatingForm(true)
     }
   };
 
@@ -207,16 +227,16 @@ export const AddLocationDrawer = ({
   const litterTypeOptions = ["Plastic", "Glass", "Mixed Waste"];
 
   async function compressImageToBase64(file) {
-  const options = {
-    maxSizeMB: 0.3,
-    maxWidthOrHeight: 1024,
-    useWebWorker: true,
-  };
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
 
-  const compressedFile = await imageCompression(file, options);
-  const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
-  return base64;
-}
+    const compressedFile = await imageCompression(file, options);
+    const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
+    return base64;
+  }
 
   const handleImageChange = async (event) => {
     const file = await compressImageToBase64(event.target.files[0]);
@@ -245,7 +265,7 @@ export const AddLocationDrawer = ({
         aria-labelledby="customized-dialog-title"
         open={open}
         className="home_page_modal_zindex"
-        style={{ zIndex: '' }}
+        style={{ zIndex: "" }}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
           Take a picture and report waste dumping.
