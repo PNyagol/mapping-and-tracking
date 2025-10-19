@@ -4,6 +4,7 @@ import Link from '@mui/material/Link';
 import { styled, useTheme } from '@mui/material/styles';
 import { RouterLink } from 'src/routes/components';
 import { logoClasses } from './classes.js';
+import LOGO_IMAGES from '@/assets/logo.svg'
 
 // ----------------------------------------------------------------------
 
@@ -25,13 +26,13 @@ export function Logo({
 
   const singleLogo = (
     <div>
-      <img src='/logo.svg' alt='Logo' />
+      <img src={LOGO_IMAGES} alt='Logo' />
     </div>
   );
 
 
 const fullLogo = (
-  <img src='/logo.svg' alt='Logo' />
+  <img src={LOGO_IMAGES} alt='Logo' />
 );
 
 
