@@ -4,7 +4,7 @@ import Link from '@mui/material/Link';
 import { styled, useTheme } from '@mui/material/styles';
 import { RouterLink } from 'src/routes/components';
 import { logoClasses } from './classes.js';
-import LOGO_IMAGES from '@/assets/logo.svg'
+import LOGO_IMAGES from '@/assets/logo.png'
 
 // ----------------------------------------------------------------------
 
