@@ -1,0 +1,97 @@
+/** **************************************
+* Fonts: app
+*************************************** */
+@import '@fontsource-variable/dm-sans';
+
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow/700.css';
+@import '@fontsource/barlow/800.css';
+
+/** **************************************
+* Plugins
+*************************************** */
+/* scrollbar */
+@import './components/scrollbar/styles.css';
+
+/* chart */
+@import './components/chart/styles.css';
+
+/** **************************************
+* Baseline
+*************************************** */
+html {
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+body,
+#root,
+#root__layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+  flex-direction: column;
+}
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+input[type='number']::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+input[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.see_all_locations_toggle{
+  position: absolute;
+  top: 85dvh;
+  right: 10px;
+  z-index: 1200;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+}
+.leaflet-control-container{
+  position: relative;
+  z-index: 1200 !important;
+  max-width: 1000%;
+  min-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.leaflet-control-container form{
+  width: 50%;
+  margin: auto;
+  padding: 5px;
+  background-color: #fff;
+  color: #bbbbbb;
+  /* display: flex;
+  column-gap: 10px;
+  align-items: center; */
+}
+
+.leaflet-control-container input {
+  width: 90%;
+  border-radius: 5px;
+  height: 40px;
+}
+.leaflet-control-container button{
+  height: 40px;
+  width: 40px;
+  font-size: 20px;
+  margin-left: 5px;
+  margin-top: 5px;
+}
